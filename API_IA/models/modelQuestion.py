@@ -2,10 +2,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, Bidirectional, LSTM, Dropout, Dense
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.callbacks import EarlyStopping
-from model import Model
-import sys
-sys.path.append('..')
-from utils import treatment
+from .model import Model
 
 class ModelQuestion(Model):
     def __init__(self, vocab_size,etiqueta_dict,tokenizer,modelName):
@@ -23,7 +20,5 @@ class ModelQuestion(Model):
 
         self.early_Stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
         self.model = model
-
-X_train, y_train, X_val, y_val, vocab_size, etiqueta_dict, tokenizer = treatment('data')
 
 
