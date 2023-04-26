@@ -10,7 +10,7 @@ from config import MAX_LENGHT,MODEL_PATH
 class Model(object):
     model_path = MODEL_PATH
     max_length = MAX_LENGHT
-    def __init__(self, vocab_size,etiqueta_dict,tokenizer,modelName):
+    def __init__(self, X_train, y_train, X_val, y_val,vocab_size,etiqueta_dict,tokenizer,modelName):
         self.vocab_size = vocab_size
         self.tokenizer = tokenizer
         self.etiqueta_dict = etiqueta_dict

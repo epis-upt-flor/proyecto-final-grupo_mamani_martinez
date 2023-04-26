@@ -3,10 +3,14 @@ from tensorflow.keras.layers import Embedding, Bidirectional, LSTM, Dropout, Den
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.callbacks import EarlyStopping
 from .model import Model
+import sys
+sys.path.append('..')
+from utils import treatment
 
 class ModelQuestion(Model):
-    def __init__(self, vocab_size,etiqueta_dict,tokenizer,modelName):
-        super().__init__(vocab_size,etiqueta_dict,tokenizer,modelName)
+    def __init__(self,modelName):
+        X_train, y_train, X_val, y_val, vocab_size, etiqueta_dict, tokenizer = treatment('data')
+        super().__init__(X_train, y_train, X_val, y_val,vocab_size,etiqueta_dict,tokenizer,modelName)
     def build_model(self):
         model = Sequential()
         model.add(Embedding(self.vocab_size, 128, input_length=self.max_length))

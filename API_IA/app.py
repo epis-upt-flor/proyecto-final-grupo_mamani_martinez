@@ -1,27 +1,53 @@
 from flask import Flask, request, jsonify
-from controllers import predictModel
+from controllers import Predict
 import sys
 sys.path.append('..')
 from config import API_KEY,SECRET_KEY
-
+from utils import validation
 token = "upt2023"
 
 app = Flask(__name__)
-@app.route("/predict", methods=["POST"])
-def predict():
+prediction = Predict()
+@app.route("/predict/question", methods=["POST"])
+def predictQuestion():
+    try:
+        validation.validate_token(request.headers.get("Token"))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 401
+    data = request.get_json()
+    text=data.get("data")
+    label = prediction.prediction_Question(text)
+    return jsonify(label)
+@app.route("/predict/product", methods=["POST"])
+def predictProduct():
 
     if request.headers.get("Token") != token:
         return jsonify({"error": "Invalid Token"}), 401
+    
     data = request.get_json()
     text=data.get("data")
-    prediction = predictModel(text)
-    return jsonify(prediction)
+    return jsonify(text)
 
 @app.route("/train", methods=["POST"])
 def train():
     data = request.get_json()
     #model = training_api.train(data)
     #return jsonify(model)
-
+@app.route("/", methods=["GET"])
+def default_response():
+    return """
+    <html>
+        <head>
+            <title>API</title>
+        </head>
+        <body>
+            <p>Los métodos POST disponibles son:</p>
+            <ul>
+                <li>/predict</li>
+                <li>/train</li>
+            </ul>
+        </body>
+    </html>
+    """
 if __name__ == "__main__":
     app.run()
