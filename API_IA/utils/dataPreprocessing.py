@@ -1,11 +1,11 @@
-import sys
-sys.path.append('..')
-from config import DATA_PATH , MAX_LENGHT
 import pandas as pd
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
+import sys
+sys.path.append('..')
+from config import DATA_PATH , MAX_LENGHT
 
 def combine_labels(row):
     labels = [str(row['Idioma']),str(row['Etiqueta']), str(row['SubEtiqueta1']), str(row['SubEtiqueta2']), str(row['SubEtiqueta3'])]

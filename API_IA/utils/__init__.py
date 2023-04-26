@@ -1,2 +1,2 @@
-from .dataPreprocessing import clean_text
-from .validation import validate_data
+from .dataPreprocessing import treatment
+#from .validation import validate_data
