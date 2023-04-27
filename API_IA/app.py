@@ -2,9 +2,8 @@ from flask import Flask, request, jsonify
 from controllers import Predict
 import sys
 sys.path.append('..')
-from config import API_KEY,SECRET_KEY
 from utils import validation
-token = "upt2023"
+
 
 app = Flask(__name__)
 prediction = Predict()
