@@ -10,6 +10,7 @@ prediction = Predict()
 @app.route("/predict/question", methods=["POST"])
 def predictQuestion():
     try:
+        print(request.headers.get("Token"))
         validation.validate_token(request.headers.get("Token"))
     except Exception as e:
         return jsonify({"error": str(e)}), 401
@@ -19,10 +20,6 @@ def predictQuestion():
     return jsonify(label)
 @app.route("/predict/product", methods=["POST"])
 def predictProduct():
-
-    if request.headers.get("Token") != token:
-        return jsonify({"error": "Invalid Token"}), 401
-    
     data = request.get_json()
     text=data.get("data")
     return jsonify(text)
