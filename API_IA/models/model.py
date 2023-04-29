@@ -16,6 +16,7 @@ class Model(object):
         self.etiqueta_dict = etiqueta_dict
         self.early_Stopping = None
         self.model = None
+        self.modelTraining = None
         self.modelName = modelName
         self.load_models()
     def load_models(self):
@@ -26,10 +27,12 @@ class Model(object):
     def build_model(self):
         pass
     def training(self, X_train, y_train, X_val, y_val, batch_size=32, epochs=10):
+        self.modelTraining = True
         if self.model is None:
             self.build_model()
         self.model.fit(X_train, y_train, epochs=100, batch_size=64, validation_data=(X_val, y_val), callbacks=[self.early_Stopping])
         self.save_model()
+        self.modelTraining = False
     def predict(self,text):
         if self.model is None:
             print("The model was not found")

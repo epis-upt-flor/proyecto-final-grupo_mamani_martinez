@@ -1,2 +1,2 @@
 from .dataPreprocessing import treatment
-from .validation import validate_token
+from .validation import api_key_required,check_data
