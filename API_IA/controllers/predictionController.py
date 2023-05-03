@@ -9,3 +9,4 @@ class Predict(object):
     def prediction_Question(self,text):
         label=self.model.predict(text)
         return (f"Etiqueta : {label}")
+    

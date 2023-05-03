@@ -3,7 +3,7 @@ from controllers import Predict
 import sys
 import pandas as pd
 sys.path.append('..')
-from utils import api_key_required,check_data
+from utils import api_key_required,check_data,treatment
 from celery import Celery
 
 app = Flask(__name__)
@@ -29,8 +29,9 @@ celery = make_celery(app)
 
 @celery.task()
 def train_model_task():
-    #
-    pass
+    file = request.files['file']
+    X_train, y_train, X_val, y_val, _, _, _ = treatment(file)
+    prediction.model.training(X_train, y_train, X_val, y_val)
 
 @app.route("/predict/question", methods=["POST"])
 @api_key_required
@@ -52,17 +53,11 @@ def predictProduct():
 
 
 @app.route("/train_model", methods=["POST"])
+@api_key_required
 def train_model():
     train_model_task.delay()
     return jsonify({"message": "Model training started"})
 
-@app.route('/upload', methods=['POST'])
-@api_key_required
-def upload_file():
-    file = request.files['file']
-    df = pd.read_excel(file)
-
-    return str(df)
 
 @app.route("/", methods=["GET"])
 def default_response():
