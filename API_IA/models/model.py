@@ -4,8 +4,13 @@ import pandas as pd
 import numpy as np
 import sys
 import os
+import datetime
+import time
+current_time = datetime.datetime.now()
 sys.path.append('..')
 from config import MAX_LENGHT,MODEL_PATH
+
+print("Fecha y hora actual:", current_time)
 
 class Model(object):
     model_path = MODEL_PATH
@@ -18,12 +23,14 @@ class Model(object):
         self.model = None
         self.modelTraining = None
         self.modelName = modelName
+        self.changeModel = False
         self.load_models()
     def load_models(self):
         file = f'{self.model_path}\{self.modelName}.h5'
-        if not (os.path.exists(file)):
+        if (os.path.exists(file)):
+            self.model = load_model(file)
+        else:
             self.model = None
-        self.model = load_model(file)
     def build_model(self):
         pass
     def training(self, X_train, y_train, X_val, y_val, batch_size=32, epochs=10):
@@ -37,6 +44,8 @@ class Model(object):
         if self.model is None:
             print("The model was not found")
             raise ValueError("The model must be trained first.")
+        elif self.changeModel is True:
+            self.load_models()
         sequence = self.tokenizer.texts_to_sequences([text])
         sequence = pad_sequences(sequence, maxlen=150, padding='post')
 
@@ -51,4 +60,17 @@ class Model(object):
         if self.model is None:
             print("The model was not found")
             raise ValueError("The model must be trained first.")
-        self.model.save(f'{self.modelName}_new.h5')
+        
+        name = f'{self.modelName}_{datetime.datetime.now()}.h5'
+        
+        self.delete_model(self.modelName)
+        self.modelName = name
+        self.model.save(name)
+        self.changeModel = True
+    def delete_model(self,nameModel):
+        time.sleep(3600)
+        file = f'{self.model_path}\{nameModel}.h5'
+        if (os.path.exists(file)):
+            os.remove(file)
+        else:
+            raise ValueError(f"Not Exist : {file}")

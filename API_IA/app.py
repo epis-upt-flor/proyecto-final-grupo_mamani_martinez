@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from controllers import Predict
 import sys
+import pandas as pd
 sys.path.append('..')
 from utils import api_key_required,check_data
 from celery import Celery
@@ -42,6 +43,8 @@ def predictQuestion():
 
 
 @app.route("/predict/product", methods=["POST"])
+@api_key_required
+@check_data
 def predictProduct():
     data = request.get_json()
     text=data.get("data")
@@ -53,6 +56,13 @@ def train_model():
     train_model_task.delay()
     return jsonify({"message": "Model training started"})
 
+@app.route('/upload', methods=['POST'])
+@api_key_required
+def upload_file():
+    file = request.files['file']
+    df = pd.read_excel(file)
+
+    return str(df)
 
 @app.route("/", methods=["GET"])
 def default_response():
@@ -62,11 +72,7 @@ def default_response():
             <title>API</title>
         </head>
         <body>
-            <p>Los métodos POST disponibles son:</p>
-            <ul>
-                <li>/predict</li>
-                <li>/train</li>
-            </ul>
+            <p>Vista</p>
         </body>
     </html>
     """
