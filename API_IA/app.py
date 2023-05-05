@@ -39,7 +39,7 @@ def train_model_task():
 def predictQuestion():
     data = request.get_json()
     text=data.get("data")
-    label = prediction.prediction_Question(text)
+    label= prediction.prediction_Question(text)
     return jsonify(label)
 
 

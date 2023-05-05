@@ -7,6 +7,6 @@ class Predict(object):
     def __init__(self,modeNameQ='thrall_v',modeNameP=''):
         self.model = ModelQuestion(modeNameQ)
     def prediction_Question(self,text):
-        label=self.model.predict(text)
-        return (f"Etiqueta : {label}")
+        predicted_label, _=self.model.predict(text)
+        return (f"Etiqueta : {predicted_label}")
     

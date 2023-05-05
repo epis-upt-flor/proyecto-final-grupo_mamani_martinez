@@ -10,7 +10,10 @@ from utils import treatment
 class ModelQuestion(Model):
     def __init__(self,modelName):
         X_train, y_train, X_val, y_val, vocab_size, etiqueta_dict, tokenizer = treatment('data')
-        super().__init__(X_train, y_train, X_val, y_val,vocab_size,etiqueta_dict,tokenizer,modelName)
+        super().__init__(vocab_size,etiqueta_dict,tokenizer,modelName)
+        self.load_models()
+        if(self.model is None):
+            self.training(X_train, y_train, X_val, y_val)
     def build_model(self):
         model = Sequential()
         model.add(Embedding(self.vocab_size, 128, input_length=self.max_length))
