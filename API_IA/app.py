@@ -39,7 +39,7 @@ def train_model_task():
 def predictQuestion():
     data = request.get_json()
     text=data.get("data")
-    label= prediction.prediction_Question(text)
+    label= prediction.predictionQuestion(text)
     return jsonify(label)
 
 
@@ -49,7 +49,8 @@ def predictQuestion():
 def predictProduct():
     data = request.get_json()
     text=data.get("data")
-    return jsonify(text)
+    label= prediction.predictionProduct(text)
+    return jsonify(label)
 
 
 @app.route("/train_model", methods=["POST"])
