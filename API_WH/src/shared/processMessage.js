@@ -1,6 +1,15 @@
 const whatsappServices = require("../services/whatsappServices");
 const whatsappMessage = require("./whatsappMessage");
 
+/**
+ * @author STEVE
+ * @function process
+ * @description Procesa el mensaje recibido y envía una respuesta al número de teléfono proporcionado.
+ * @param {string} message - Mensaje recibido del usuario.
+ * @param {string} number - Número de teléfono del usuario.
+ * @returns {Object} - Objeto con el mensaje y la etiqueta.
+ * @throws {Error} - Si ocurre un error inesperado.
+ */
 async function process(message, number) {
   try {
     let result = await nlpManager.testNluManagerEs("es", message,{ includeDomains: true })

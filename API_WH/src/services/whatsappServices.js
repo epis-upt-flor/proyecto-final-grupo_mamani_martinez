@@ -1,4 +1,16 @@
 const https = require('https')
+
+/**
+ * @author STEVE
+ * @description Envía un mensaje de texto mediante la API de Facebook Messenger.
+ * @function SendMessageText
+ * @param {Object} data - Objeto con los datos del mensaje a enviar.
+ * @param {string} data.recipient_id - ID del destinatario del mensaje.
+ * @param {string} data.message_text - Texto del mensaje a enviar.
+ * @returns {void}
+ * @throws {Error} Error si ocurre algún problema al enviar el mensaje.
+*/
+
 function SendMessageText(data) {
     const options = {
         host : "graph.facebook.com",

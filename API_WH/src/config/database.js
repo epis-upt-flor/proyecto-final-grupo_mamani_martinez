@@ -1,19 +1,21 @@
 const mongoose = require('mongoose');
 
-const uri = "mongodb+srv://username:password@cluster.mongodb.net/your-db-name?retryWrites=true&w=majority";
+const uri = "mongodb+srv://steve:restaurant2023@restaurant.tujo7ef.mongodb.net/restaurant?retryWrites=true&w=majority";
 
-async function connect() {
+/**
+ * @author STEVE
+ * @function connect
+ * @description Conectar a la base de datos MongoDB utilizando Mongoose.
+ * @returns {undefined}
+ */
+const connect = async () => {
     try {
-        await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useFindAndModify: false,
-            useCreateIndex: true,
-        });
-        console.log("You successfully connected to MongoDB using Mongoose!");
-    } catch (error) {
-        console.error('Database connection error:', error);
-        process.exit(1);
+        await mongoose.connect(uri);
+        console.log(`MongoDB Connected:`)
+    }
+    catch (error) {
+        console.log(error)
+        process.exit(1)
     }
 }
 

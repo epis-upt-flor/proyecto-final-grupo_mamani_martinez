@@ -1,5 +1,4 @@
 const winston = require('winston')
-const fs = require('fs')
 const processMessage = require("../shared/processMessage")
 
 const logger = winston.createLogger({
@@ -19,32 +18,44 @@ const logger = winston.createLogger({
   ]
 })
 
-
-
 const ACCESS_TOKEN = "vFgAqJlRmSjOwPzXnEiKcYbHtUyDx";
 
-function validateToken(token) {
-    return token === ACCESS_TOKEN;
-}
 
-function handleVerification(req, res) {
+
+
+
+/**
+ * @author STEVE
+ * @function handleVerification
+ * @description Función para manejar la verificación de token entrante.
+ * @param {Object} req - El objeto Request.
+ * @param {Object} res - El objeto Response.
+ * @returns {void} - No devuelve ningún valor.
+ */
+const handleVerification = (req, res) => {
   try{
     const { query } = req;
     const { "hub.verify_token": token, "hub.challenge": challenge } = query;
 
-    if (!token || !challenge) {
-        return res.status(400).send();
+    if(challenge != null && token != null && token == ACCESS_TOKEN){
+        res.send(challenge);
+    }else{
+        res.status(400).send();
     }
 
-    if (validateToken(token)) {
-        return res.send(challenge);
-    }
-  }
-  catch(e){
-    return res.status(401).send();
+  }catch(e){
+      res.status(400).send();
   }
 }
 
+/**
+ * @author STEVE
+ * @function receivedMessage
+ * @description Función para manejar los mensajes recibidos.
+ * @param {Object} req - El objeto Request.
+ * @param {Object} res - El objeto Response.
+ * @returns {void} - No devuelve ningún valor.
+ */
 const receivedMessage = (req, res) => {
   try {
     let entry = (req.body["entry"])[0];
@@ -59,12 +70,8 @@ const receivedMessage = (req, res) => {
 
       if (textMessage != null && fromNumber != null) {
           processMessage.process(textMessage, fromNumber);
-
-        // Aquí es donde se puede guardar la conversación en una base de datos en lugar de escribirla en un archivo
-        
-
         try {
-          // Aquí es donde se puede hacer una llamada a la base de datos para guardar la conversación
+          // Aquí
         } catch (err) {
           console.error(err);
         }
@@ -78,7 +85,14 @@ const receivedMessage = (req, res) => {
   }
 };
 
-function getTextbyType(libMessage) {
+/**
+ * @author STEVE
+ * @function getTextbyType
+ * @description Función para obtener el texto de un mensaje.
+ * @param {Object} libMessage - El objeto que representa el mensaje.
+ * @returns {string} - Devuelve el texto del mensaje.
+ */
+const getTextbyType = (libMessage) =>{
   let text;
   switch (libMessage.type) {
     case "text":

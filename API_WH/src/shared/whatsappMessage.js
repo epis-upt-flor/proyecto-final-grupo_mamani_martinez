@@ -1,63 +1,100 @@
-
+/**
+ * @author STEVE
+ * @function whatsAppMessageBuilder
+ * @description Clase que construye mensajes para ser enviados a través de WhatsApp
+ */
 class whatsAppMessageBuilder {
-    static typeText(number,resText) {
+    /**
+     * @function typeText
+     * @description Crea un mensaje de texto para ser enviado a un número de WhatsApp
+     * @param {String} number - Número de WhatsApp al que se enviará el mensaje
+     * @param {String} resText - Texto que se enviará en el mensaje
+     * @returns {String} Cadena en formato JSON que representa el mensaje de texto
+     */
+    static typeText(number, resText) {
         const data = JSON.stringify({
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": number,
-            "type": "text",
-            "text": {
-                "preview_url": false,
-                "body": resText
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: number,
+            type: "text",
+            text: {
+                preview_url: false,
+                body: resText
             }
-        })
-        return data
+        });
+        return data;
     }
-    static typeImage(number,urlImage) {
+
+    /**
+     * @function typeImage
+     * @description Crea un mensaje de imagen para ser enviado a un número de WhatsApp
+     * @param {String} number - Número de WhatsApp al que se enviará el mensaje
+     * @param {String} urlImage - URL de la imagen que se enviará en el mensaje
+     * @returns {String} Cadena en formato JSON que representa el mensaje de imagen
+     */
+    static typeImage(number, urlImage) {
         const data = JSON.stringify({
-            "messaging_product": "whatsapp",
-            "to": number,
-            "type":"image",
-            "image": {
-                "link": urlImage
+            messaging_product: "whatsapp",
+            to: number,
+            type: "image",
+            image: {
+                link: urlImage
             }
-        })
-        return data
+        });
+        return data;
     }
+
+    /**
+     * @function typeButton
+     * @description Crea un mensaje de botón interactivo para ser enviado a un número de WhatsApp
+     * @param {String} number - Número de WhatsApp al que se enviará el mensaje
+     * @returns {String} Cadena en formato JSON que representa el mensaje de botón interactivo
+     */
     static typeButton(number) {
         const data = JSON.stringify({
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": number,
-            "type": "interactive",
-            "interactive": {
-                "type": "button",
-                "body": {
-                    "text": "*Confirmas tu Pedido*"
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: number,
+            type: "interactive",
+            interactive: {
+                type: "button",
+                body: {
+                    text: "*Confirmas tu Pedido*"
                 },
-                "action": {
-                    "buttons": [
+                action: {
+                    buttons: [
                         {
-                            "type": "reply",
-                            "reply": {
-                                "id": "001",
-                                "title": "Si"
+                            type: "reply",
+                            reply: {
+                                id: "001",
+                                title: "Si"
                             }
                         },
                         {
-                            "type": "reply",
-                            "reply": {
-                                "id": "002",
-                                "title": "No"
+                            type: "reply",
+                            reply: {
+                                id: "002",
+                                title: "No"
                             }
                         }
                     ]
                 }
             }
-        })
-        return data
+        });
+        return data;
     }
-    static typeLocation(number,lat,lon,name) {
+
+
+    /**
+     * @function typeLocation
+     * @description Crea un mensaje de tipo ubicación para enviar a través de WhatsApp.
+     * @param {string} number - El número de destinatario.
+     * @param {number} lat - Latitud de la ubicación.
+     * @param {number} lon - Longitud de la ubicación.
+     * @param {string} name - Nombre de la ubicación.
+     * @returns {string} - El mensaje en formato JSON.
+     */
+    static typeLocation(number, lat, lon, name) {
         const data = JSON.stringify({
             "messaging_product": "whatsapp",
             "to": number,
@@ -68,21 +105,39 @@ class whatsAppMessageBuilder {
                 "name": name,
                 "address": "Test"
             }
-        })
-        return data
+        });
+        return data;
     }
-    static typeUrl(number,text,url) {
+
+    /**
+     * @function typeUrl
+     * @description Crea un mensaje de tipo texto con una URL para enviar a través de WhatsApp.
+     * @param {string} number - El número de destinatario.
+     * @param {string} text - El texto del mensaje.
+     * @param {string} url - La URL a incluir en el mensaje.
+     * @returns {string} - El mensaje en formato JSON.
+     */
+    static typeUrl(number, text, url) {
         const data = JSON.stringify({
             "messaging_product": "whatsapp",
             "to": number,
             "text": {
                 "preview_url": true,
-                "body": text+" : "+url
+                "body": text + " : " + url
             }
-        })
-        return data
+        });
+        return data;
     }
-    static typeDocument(number,url,text) {
+
+    /**
+     * @function typeDocument
+     * @description Crea un mensaje de tipo documento para enviar a través de WhatsApp.
+     * @param {string} number - El número de destinatario.
+     * @param {string} url - La URL del documento.
+     * @param {string} text - El texto que describirá el documento.
+     * @returns {string} - El mensaje en formato JSON.
+     */
+    static typeDocument(number, url, text) {
         const data = JSON.stringify({
             "messaging_product": "whatsapp",
             "to": number,
@@ -91,8 +146,8 @@ class whatsAppMessageBuilder {
                 "link": url,
                 "caption":text
             }
-        })
-        return data
+        });
+        return data;
     }
 }
 
