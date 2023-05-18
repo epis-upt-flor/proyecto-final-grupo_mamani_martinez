@@ -1,5 +1,10 @@
 const winston = require('winston')
+require('dotenv').config();
 const processMessage = require("../shared/processMessage")
+
+
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+
 
 const logger = winston.createLogger({
   level: 'info',
@@ -18,11 +23,10 @@ const logger = winston.createLogger({
   ]
 })
 
-const ACCESS_TOKEN = "vFgAqJlRmSjOwPzXnEiKcYbHtUyDx";
 
-
-
-
+/*
+"vFgAqJlRmSjOwPzXnEiKcYbHtUyDx"
+*/
 
 /**
  * @author STEVE

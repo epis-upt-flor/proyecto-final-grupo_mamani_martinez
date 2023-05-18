@@ -12,11 +12,11 @@ const whatsappMessage = require("./whatsappMessage");
  */
 async function process(message, number) {
   try {
-    let result = await nlpManager.testNluManagerEs("es", message,{ includeDomains: true })
+    whatsappServices.conversation.conversationService.createConversation({})
     let message =""
     let label= ""
     let model;
-
+ 
     if (result.domain === 'saludo') {
       model = whatsappMessage.whatsAppMessageBuilder.typeText(number, '*Hola usuario*,\n\nEspero que estés teniendo un día *fantástico*. ¿En qué puedo ayudarte hoy?\n\n_Atentamente_,\nTu amigo ')
     }
@@ -72,12 +72,12 @@ async function process(message, number) {
       model = whatsappMessage.MessageType.typeText(number, 'Hasta luego')
     }
 
-    whatsappServices.SendMessageText(model)
+    whatsappServices.sendMessageText(model)
 
     return message,label;
   } catch (error) {
     let model = whatsappMessage.MessageType.typeText(number, 'Upps, ocurrió un error inesperado')
-    whatsappServices.SendMessageText(model)
+    whatsappServices.sendMessageText(model)
   }
 }
 

@@ -31,7 +31,6 @@ class modelConsult(Model):
             model.add(Dense(64, activation='relu', kernel_regularizer=l2(1e-4)))
             model.add(Dropout(0.5))
             model.add(Dense(len(self.etiqueta_dict), activation='softmax'))
-            model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
             model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 

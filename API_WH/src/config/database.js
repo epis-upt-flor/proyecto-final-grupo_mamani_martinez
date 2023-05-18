@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-
-const uri = "mongodb+srv://steve:restaurant2023@restaurant.tujo7ef.mongodb.net/restaurant?retryWrites=true&w=majority";
+require('dotenv').config();
+const uri = "mongodb+srv://"+process.env.DATA_USER+":"+process.env.DATA_PASSWORD+"@"+process.env.DATA_NAME+".tujo7ef.mongodb.net/"+process.env.DATA_NAME+"?retryWrites=true&w=majority";
 
 /**
  * @author STEVE

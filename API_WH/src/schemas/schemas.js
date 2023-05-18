@@ -1,24 +1,17 @@
 const mongoose = require("mongoose");
-
-
-/**
- * @author STEVE
- */
-
 const Schema = mongoose.Schema;
 
 const conversationSchema = new Schema({
-    conversation_id: String,
+    conversation_id: { type: String, default: uuidv4 },
     customer_id: { type: Schema.Types.ObjectId, ref: "Customer" },
-    timestamp: Date,
-    messages: String,
-    label: String
+    timestamp: { type: Date, default: Date.now },
+    messages: {type: String,required:true},
+    label : {type: String,required:true}
 });
 
 const customerSchema = new Schema({
-    customer_id: String,
-    phone_number: String,
-    status: String,
+    customer_id: { type: String, default: uuidv4 },
+    phone_number: { type: Schema.Types.ObjectId, ref: "Phone" },
     payment_history: [
         {
             payment_id: { type: Schema.Types.ObjectId, ref: "Payment" },
@@ -59,57 +52,75 @@ const customerSchema = new Schema({
 });
 
 const orderSchema = new Schema({
-    order_id: String,
+    order_id: { type: String, default: uuidv4 },
     conversation_id: { type: Schema.Types.ObjectId, ref: "Conversation" },
     customer_id: { type: Schema.Types.ObjectId, ref: "Customer" },
     products: [
         {
             product_id: { type: Schema.Types.ObjectId, ref: "Product" },
-            quantity: Number
+            quantity: String
         }
     ],
-    total_amount: Number,
-    payment_status: String,
-    delivery_address: String,
-    delivery_status: String,
-    timestamp: Date
+    total_amount: {
+        type: Number,
+        required: true,
+        min: [0, 'Total amount cannot be less than 0.']
+    },
+    payment_status: { type: String, default: "I", enum: ['I', 'P', 'C'] },
+    delivery_address: {type: String,required:true},
+    delivery_status: { type: String, default: "I", enum: ['I', 'P', 'C'] },
+    timestamp: { type: Date, default: Date.now }
 });
 
 const productSchema = new Schema({
-    payment_id: String,
+    payment_id: { type: String, default: uuidv4 },
     order_id: { type: Schema.Types.ObjectId, ref: "Order" },
-    name: String,
-    category: String,
-    quantity: Number,
-    price_unit: Number,
+    name: {type: String,required:true},
+    category: {type: String,required:true},
+    quantity: {
+        type: Number,
+        required: true,
+        min: [1, 'Quantity cannot be less than 1.'],
+        max: [5, 'Quantity cannot be more than 5.']
+    },
+    price_unit: {
+        type: Number,
+        required: true,
+        min: [0, 'Price per unit cannot be less than 0.']
+    },
 });
 
+
 const paymentSchema = new Schema({
-    payment_id: String,
+    payment_id: { type: String, default: uuidv4 },
     order_id: { type: Schema.Types.ObjectId, ref: "Order" },
     customer_id: { type: Schema.Types.ObjectId, ref: "Customer" },
-    amount: Number,
-    payment_method: String,
-    timestamp: Date,
-    status: String
+    amount: {
+        type: Number,
+        required: true,
+        min: [0, 'Total amount cannot be less than 0.']
+    },
+    payment_method: {type: String,required:true},
+    timestamp: { type: Date, default: Date.now },
+    status: { type: String, default: "I", enum: ['I', 'P', 'C']}
 });
 
 const deliverySchema = new Schema({
-    delivery_id: String,
+    delivery_id: { type: String, default: uuidv4 },
     order_id: { type: Schema.Types.ObjectId, ref: "Order" },
     customer_id: { type: Schema.Types.ObjectId, ref: "Customer" },
-    delivery_address: String,
-    deliverer_name: String,
-    timestamp: Date,
-    status: String
+    delivery_address: {type: String,required:true},
+    deliverer_name: {type: String,required:true},
+    timestamp: { type: Date, default: Date.now },
+    status: { type: String, default: "I", enum: ['I', 'P', 'C']}
 });
 
 const returnSchema = new Schema({
-    return_id: String,
+    return_id: { type: String, default: uuidv4 },
     order_id: { type: Schema.Types.ObjectId, ref: "Order" },
-    reason: String,
-    status: String,
-    timestamp: Date
+    reason: {type: String,required:true},
+    status: { type: String, default: "I", enum: ['I', 'P', 'C']},
+    timestamp: { type: Date, default: Date.now }
 });
 
 module.exports = {
