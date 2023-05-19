@@ -1,2 +1,2 @@
-from .modelConsult import ModelQuestion
-from .modelProduct import ModelProduct
+from .modelConsultHybrid import ModelHybrid
+#from .modelProduct import ModelProduct

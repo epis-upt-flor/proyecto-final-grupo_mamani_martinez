@@ -1,15 +1,14 @@
 import sys
 sys.path.append('..')
-from models import modelConsult
-
+from models import modelConsultHybrid
 
 class Predict(object):
-    def __init__(self,modeNameQ='thrall_v',modeNameP='arthas_v'):
-        self.modelQuestion = modelConsult(modeNameQ,"data_Question")
-        self.modelProduct = modelConsult(modeNameP,"data_Product")
+    def __init__(self,modeNameQ='hybrid_model',modeNameP='arthas_v'):
+        self.modelQuestion = modelConsultHybrid.ModelHybrid(modeNameQ,"data_Question")
+        #self.modelProduct = modelHybrid(modeNameP,"data_Product")
     def predictionQuestion(self,text):
-        predicted_label, _=self.modelQuestion.predict(text)
-        return (f"Etiqueta : {predicted_label}")
+        predicted=self.modelQuestion.predict(text)
+        return (f"{predicted}")
     def predictionProduct(self,text):
         _, top_predicted_labels=self.modelProduct.predict(text)
         return (f"Etiqueta : {top_predicted_labels}")

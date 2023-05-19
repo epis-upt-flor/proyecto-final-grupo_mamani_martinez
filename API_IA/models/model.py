@@ -1,4 +1,5 @@
 from tensorflow.keras.models import load_model
+from transformers import TFBertModel, BertTokenizer
 import pandas as pd
 import numpy as np
 import sys
@@ -10,34 +11,33 @@ from config import MAX_LENGHT,MODEL_PATH
 
 class Model(object):
     model_path = MODEL_PATH
-    max_length = MAX_LENGHT
 
-    def __init__(self, vocab_size, etiqueta_dict, tokenizer, modelName):
-        self.vocab_size = vocab_size
-        self.tokenizer = tokenizer
-        self.etiqueta_dict = etiqueta_dict
+    def __init__(self,modelName):
+
         self.early_Stopping = None
-        self.model = None
+        self.etiqueta_dict = None
         self.modelName = modelName
         self.changeModel = False
+        self.model = None
 
-    def load_models(self):
+    def load_models(self, customObject=None):
+        model = None
         file = f'{self.model_path}/{self.modelName}.h5'
-        if (os.path.exists(file)):
-            self.model = load_model(file)
+        if os.path.exists(file):
+            model = load_model(file, custom_objects=customObject)
+            print("Model loaded successfully")
         else:
-            self.model = None
+            raise ValueError("Model file does not exist")
+        return model
+
 
     def build_model(self):
         pass
 
-    def training(self, X_train, y_train, X_val, y_val, batch_size=32, epochs=50):
-        if self.model is None:
-            self.build_model()
-        self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(X_val, y_val), callbacks=[self.early_Stopping])
-        self.save_model()
+    def training(self):
+        pass
 
-    def predict(self, text):
+    def predict(self):
         pass
 
     def save_model(self):

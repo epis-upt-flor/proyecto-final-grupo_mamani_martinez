@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const uuidv4 = require('uuid');
+
 const Schema = mongoose.Schema;
 
 const conversationSchema = new Schema({

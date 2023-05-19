@@ -60,20 +60,21 @@ const handleVerification = (req, res) => {
  * @param {Object} res - El objeto Response.
  * @returns {void} - No devuelve ningún valor.
  */
-const receivedMessage = (req, res) => {
+const receivedMessage = async(req, res) => {
   try {
     let entry = (req.body["entry"])[0];
     let changes = (entry["changes"])[0];
     let value = changes["value"];
     let message = value["messages"][0];
-
+    
     if (typeof message != "undefined") {
       let textMessage = getTextbyType(message);
       let fromNumber = message["from"];
-      let id = message["id"];
 
       if (textMessage != null && fromNumber != null) {
-          processMessage.process(textMessage, fromNumber);
+
+          const result = await processMessage.process(textMessage, fromNumber);
+          res.send("EVENT_RECEIVED:" + result);
         try {
           // Aquí
         } catch (err) {
@@ -81,11 +82,12 @@ const receivedMessage = (req, res) => {
         }
       }
     }
-    res.send("EVENT_RECEIVED");
-  } catch (e) {
+
+  }
+  catch (e) {
     logger.log("error", e.message);
     console.log(e);
-    res.send("EVENT_RECEIVED");
+    res.send("EVENT_RECEIVED_ERROR");
   }
 };
 

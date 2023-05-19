@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 sys.path.append('..')
 from utils import api_key_required,check_data,treatment
+from config import MAX_LENGHT,MODEL_PATH
 from celery import Celery
 
 app = Flask(__name__)
@@ -29,17 +30,17 @@ celery = make_celery(app)
 
 @celery.task()
 def train_model_task():
-    file = request.files['file']
-    X_train, y_train, X_val, y_val, _, _, _ = treatment(file)
-    prediction.model.training(X_train, y_train, X_val, y_val)
+    '''Re-Entrenar Modelo'''
 
 @app.route("/predict/question", methods=["POST"])
 @api_key_required
 @check_data
 def predictQuestion():
+    
     data = request.get_json()
     text=data.get("data")
     label= prediction.predictionQuestion(text)
+    
     return jsonify(label)
 
 
