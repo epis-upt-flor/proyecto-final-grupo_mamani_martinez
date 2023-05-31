@@ -23,11 +23,6 @@ const logger = winston.createLogger({
   ]
 })
 
-
-/*
-"vFgAqJlRmSjOwPzXnEiKcYbHtUyDx"
-*/
-
 /**
  * @author STEVE
  * @function handleVerification

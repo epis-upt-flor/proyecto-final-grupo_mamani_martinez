@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
-const uuidv4 = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 const Schema = mongoose.Schema;
 
 const conversationSchema = new Schema({
     conversation_id: { type: String, default: uuidv4 },
-    customer_id: { type: Schema.Types.ObjectId, ref: "Customer" },
+    customer_id: {type: String, ref: "Customer" },
     timestamp: { type: Date, default: Date.now },
     messages: {type: String,required:true},
     label : {type: String,required:true}
@@ -13,10 +13,11 @@ const conversationSchema = new Schema({
 
 const customerSchema = new Schema({
     customer_id: { type: String, default: uuidv4 },
-    phone_number: { type: Schema.Types.ObjectId, ref: "Phone" },
+    phone_number: {type: String,required:true},
+    status: { type: String, default: "A", enum: ['A', 'I', 'B']},
     payment_history: [
         {
-            payment_id: { type: Schema.Types.ObjectId, ref: "Payment" },
+            payment_id: { type: String, ref: "Payment" },
             payment_method: String,
             amount: Number,
             status: String,
@@ -25,7 +26,7 @@ const customerSchema = new Schema({
     ],
     return_history: [
         {
-            return_id: { type: Schema.Types.ObjectId, ref: "Return" },
+            return_id: { type: String, ref: "Return" },
             reason: String,
             status: String,
             timestamp: Date
@@ -33,7 +34,7 @@ const customerSchema = new Schema({
     ],
     delivery_history: [
         {
-            delivery_id: { type: Schema.Types.ObjectId, ref: "Delivery" },
+            delivery_id: { type: String, ref: "Delivery" },
             delivery_address: String,
             status: String,
             timestamp: Date
@@ -41,13 +42,13 @@ const customerSchema = new Schema({
     ],
     conversation_history: [
         {
-            conversation_id: { type: Schema.Types.ObjectId, ref: "Conversation" },
+            conversation_id: { type: String, ref: "Conversation" },
             timestamp: Date
         }
     ],
     order_history: [
         {
-            order_id: { type: Schema.Types.ObjectId, ref: "Order" },
+            order_id: { type: String, ref: "Order" },
             timestamp: Date
         }
     ]
@@ -55,12 +56,22 @@ const customerSchema = new Schema({
 
 const orderSchema = new Schema({
     order_id: { type: String, default: uuidv4 },
-    conversation_id: { type: Schema.Types.ObjectId, ref: "Conversation" },
-    customer_id: { type: Schema.Types.ObjectId, ref: "Customer" },
+    customer_id: { type: String, ref: "Customer" },
     products: [
         {
-            product_id: { type: Schema.Types.ObjectId, ref: "Product" },
-            quantity: String
+            //product_id: { type: Schema.Types.ObjectId, ref: "Product" },
+            name: {type: String,required:true},
+            quantity: {
+                type: Number,
+                required: true,
+                min: [1, 'Quantity cannot be less than 1.'],
+                max: [5, 'Quantity cannot be more than 5.']
+            },
+            price : {
+                type: Number,
+                required: true,
+                min: [0, 'Quantity cannot be less than 1.']
+            }
         }
     ],
     total_amount: {
@@ -68,15 +79,16 @@ const orderSchema = new Schema({
         required: true,
         min: [0, 'Total amount cannot be less than 0.']
     },
-    payment_status: { type: String, default: "I", enum: ['I', 'P', 'C'] },
-    delivery_address: {type: String,required:true},
-    delivery_status: { type: String, default: "I", enum: ['I', 'P', 'C'] },
+    status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
+    payment_status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
+    delivery_address: {type: String},
+    delivery_status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
     timestamp: { type: Date, default: Date.now }
 });
 
 const productSchema = new Schema({
     payment_id: { type: String, default: uuidv4 },
-    order_id: { type: Schema.Types.ObjectId, ref: "Order" },
+    order_id: { type: String, ref: "Order" },
     name: {type: String,required:true},
     category: {type: String,required:true},
     quantity: {
@@ -95,8 +107,8 @@ const productSchema = new Schema({
 
 const paymentSchema = new Schema({
     payment_id: { type: String, default: uuidv4 },
-    order_id: { type: Schema.Types.ObjectId, ref: "Order" },
-    customer_id: { type: Schema.Types.ObjectId, ref: "Customer" },
+    order_id: { type: String, ref: "Order" },
+    customer_id: { type: String, ref: "Customer" },
     amount: {
         type: Number,
         required: true,
@@ -104,24 +116,24 @@ const paymentSchema = new Schema({
     },
     payment_method: {type: String,required:true},
     timestamp: { type: Date, default: Date.now },
-    status: { type: String, default: "I", enum: ['I', 'P', 'C']}
+    status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
 });
 
 const deliverySchema = new Schema({
     delivery_id: { type: String, default: uuidv4 },
-    order_id: { type: Schema.Types.ObjectId, ref: "Order" },
-    customer_id: { type: Schema.Types.ObjectId, ref: "Customer" },
+    order_id: { type: String, ref: "Order" },
+    customer_id: { type: String, ref: "Customer" },
     delivery_address: {type: String,required:true},
     deliverer_name: {type: String,required:true},
     timestamp: { type: Date, default: Date.now },
-    status: { type: String, default: "I", enum: ['I', 'P', 'C']}
+    status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
 });
 
 const returnSchema = new Schema({
     return_id: { type: String, default: uuidv4 },
-    order_id: { type: Schema.Types.ObjectId, ref: "Order" },
+    order_id: { type: String, ref: "Order" },
     reason: {type: String,required:true},
-    status: { type: String, default: "I", enum: ['I', 'P', 'C']},
+    status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
     timestamp: { type: Date, default: Date.now }
 });
 

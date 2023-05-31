@@ -14,14 +14,13 @@ class conversationService{
      */
     async createConversation(conversationData){
         try {
-            const model = Conversation;
-            const newConversation = new model(conversationData)
-            const savedConversation = await newConversation.save();
-            return savedConversation;
+            const conversation = new Conversation(conversationData);
+            const result = await conversation.save();
+            return result;
         } catch (error) {
             throw error;
         }
-    }
+    };
     /**
      * @author ALEXIZ
      * @function getConversation

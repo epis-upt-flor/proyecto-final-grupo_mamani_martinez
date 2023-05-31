@@ -50,7 +50,7 @@ class customerService{
             const customer = await Customer.findOne({ phone_number: customerNumber });
             return customer;
         } catch (error) {
-            throw error;
+            return null;
         }
     };
 

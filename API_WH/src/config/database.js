@@ -11,7 +11,7 @@ const uri = "mongodb+srv://"+process.env.DATA_USER+":"+process.env.DATA_PASSWORD
 const connect = async () => {
     try {
         await mongoose.connect(uri);
-        console.log(`MongoDB Connected:`)
+        console.log(`MongoDB Connected`)
     }
     catch (error) {
         console.log(process.env.DATA_USER)

@@ -49,8 +49,29 @@ class orderService{
     */
     async getOrdersByCustomerId(customerId) {
         try {
-            const orders = await Order.find({ customer_id: customerId });
-            return orders;
+            const orders = await Order.findOne({ customer_id: customerId,status:"P"});
+            return orders
+        } catch (error) {
+            return null
+        }
+    }
+    /**
+     * @author STEVE
+     * @function updateOrderStatusById
+     * @description Actualiza el estado de entrega de una orden específica
+     * @param {string} orderId - ID de la orden que se desea actualizar
+     * @param {string} newStatus - El nuevo estado de entrega que se desea asignar
+     * @returns {Promise<Object>} - El objeto de tipo Order actualizado
+     * @throws {Error} - Si ocurre algún error al buscar o actualizar la orden de compra
+    */
+    async updateOrderStatusById(orderId, newStatus) {
+        try {
+            const order = await Order.findOneAndUpdate(
+                { order_id: orderId },
+                { status: newStatus },
+                { new: true }
+            );
+            return order;
         } catch (error) {
             throw new Error(error);
         }
@@ -100,7 +121,7 @@ class orderService{
      */
     async getListProducts(orderId) {
         try {
-            const order = await Order.findById(orderId);
+            const order = await Order.findOne({order_id:orderId});
             return order.products;
         } catch (error) {
             throw error;
@@ -112,15 +133,41 @@ class orderService{
      * @function addListProducts
      * @description Agrega una lista de productos a una orden específica
      * @param {string} orderId - ID de la orden a la cual se desea agregar la lista de productos
-     * @param {Object} returnData - Objeto con la lista de productos a agregar
+     * @param {string} name - Nombre del producto a la cual se va agrega a la lista de productos
+     * @param {int} quantity - Cantidad del producto a la cual se va agrega a la lista de productos
+     * @param {int} price - Precio del producto a la cual se va agrega a la lista de productos
      * @returns {Promise<Object>} - El objeto de tipo Order actualizado con la lista de productos agregada
      * @throws {Error} Error si ocurre algún problema al actualizar la orden
      */
-    async addListProducts(orderId, returnData) {
+    async addListProducts(orderId,_name,_quantity,_price) {
+        try {
+            let product = {name:_name,quantity:_quantity,price :_price}
+            const result = await Order.updateOne(
+                { order_id: orderId },
+                { $push: { products: product } }
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+    /**
+     * @author STEVE
+     * @function updateListProducts
+     * @description Actualiza un producto de una orden específica
+     * @param {string} orderId - ID de la orden a la cual pertenece el producto a actualizar
+     * @param {Object} updateData - Objeto con los datos actualizados del producto
+     * @returns {Promise<Object>} - El objeto de tipo Order actualizado con el
+     * @throws {Error} Error si ocurre algún problema al actualizar la orden de compra
+     */
+    async updateListProducts(orderId, updateData) {
         try {
             const result = await Order.updateOne(
-                { _id: orderId },
-                { $push: { products: returnData } }
+            {
+                order_id: orderId,
+                "products._id": updateData._id
+            },
+            { $set: { "products.$.quantity": updateData.quantity } }
             );
             return result;
         } catch (error) {
@@ -128,30 +175,6 @@ class orderService{
         }
     }
 
-    /**
-     * @author STEVE
-     * @function updateListProducts
-     * @description Actualiza un producto de una orden específica
-     * @param {string} orderId - ID de la orden a la cual pertenece el producto a actualizar
-     * @param {string} productId - ID del producto que se desea actualizar
-     * @param {Object} updateData - Objeto con los datos actualizados del producto
-     * @returns {Promise<Object>} - El objeto de tipo Order actualizado con el
-     * @throws {Error} Error si ocurre algún problema al actualizar la orden de compra
-     */
-    async updateListProducts(orderId, productId, updateData){
-        try {
-            const result = await Order.updateOne(
-            {
-                _id: orderId,
-                "products._id": productId
-            },
-            { $set: { "products.$": updateData } }
-            );
-            return result;
-        } catch (error) {
-            throw error;
-        }
-    }
 
     /**
      * @author STEVE

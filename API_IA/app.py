@@ -50,8 +50,8 @@ def predictQuestion():
 def predictProduct():
     data = request.get_json()
     text=data.get("data")
-    label= prediction.predictionProduct(text)
-    return jsonify(label)
+    order= prediction.predictionProduct(text)
+    return jsonify(order)
 
 
 @app.route("/train_model", methods=["POST"])
