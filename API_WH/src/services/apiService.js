@@ -32,12 +32,18 @@ async function sendRequestDish(message) {
         }, config)
         try{
             let data = String(response.data)
-            data = data.replace(/None/g, 'null').replace(/False/g, 'false').replace(/True/g, 'true').replaceAll("'",'"');
-            let jsonData = JSON.parse(data);
-            return jsonData
+            console.log(data)
+            if(data !=="[]"){
+                data = data.replace(/None/g, 'null').replace(/False/g, 'false').replace(/True/g, 'true').replaceAll("'",'"');
+                let jsonData = JSON.parse(data);
+                return jsonData
+            }
+            else {
+                return null
+            }
         }
         catch(e){
-            console.log("Text Format Error")
+            return null;
         }
     } catch (error) {
         console.error(`Connection ERROR(MONGO): ${error}`)

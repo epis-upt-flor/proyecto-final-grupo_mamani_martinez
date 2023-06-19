@@ -19,218 +19,236 @@ async function process(msg, number) {
 
 
     let resultado = await whatsappServices.api.sendRequestConsult(msg)
-    let message ="Null"
+    let message =""
     const listEtiq = resultado.split(" / ")
     const language=listEtiq[0]
     const subEtia01=listEtiq[1]
 
     const order = new whatsappServices.order.orderService
-    const customer=await signCustomer(number)
-    const orderDt=await order.getOrdersByCustomerId(customer["customer_id"])
+    const conversation = new whatsappServices.conversation.conversationService
+    const payment = new whatsappServices.payment.paymentService
+    const customer = new whatsappServices.customer.customerService
 
-    if(customer["status"] === "A" && orderDt=== null){
-      let conversation = new whatsappServices.conversation.conversationService
+    const customerSign=await signCustomer(customer,number)
+    const orderCustomer=await order.getOrdersByCustomerId(customerSign["customer_id"])
 
+    if (customerSign["status"] === "A") {
+      if (orderCustomer === null) {
 
-      await conversation.createConversation({
-        customer_id: customer["customer_id"],
-        messages: msg,
-        label : resultado
-      })
-
-
-      if (subEtia01 === 'greeting') {
-
-        const subEtia02=listEtiq[2]
-
-        if(subEtia02 === 'welcome'){
-          //model = whatsappMessage.whatsAppMessageBuilder.typeText(number, '*Hola usuario*,\n\nEspero que estés teniendo un día *fantástico*. ¿En qué puedo ayudarte hoy?\n\n_Atentamente_,\nTu amigo ')
-          message = "Bienvenida"
+        if (subEtia01 === 'greeting') {
+          await addConversation(conversation,msg,resultado,customerSign["customer_id"])
+          const subEtia02=listEtiq[2]
+          if(subEtia02 === 'welcome'){
+            //model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'Espero que estés teniendo un día *fantástico*. ¿En qué puedo ayudarte hoy?\n\n_Atentamente_,\nTu amigo ')
+            message = "Espero que estés teniendo un gran dia. ¿En qué puedo ayudarte hoy?"
+          }
+          else{
+            //model = whatsappMessage.MessageType.typeText(number, 'Hasta luego')
+            message = "¡Hasta luego! No tengas un buen dia , ten un gran dia"
+          }
         }
-        else{
-          //model = whatsappMessage.MessageType.typeText(number, 'Hasta luego')
-          message = "Hasta luego"
-        }
-      }
-      else if (subEtia01 === 'menu') {
+        else if (subEtia01 === 'menu') {
+          await addConversation(conversation,msg,resultado,customerSign["customer_id"])
+          const subEtia02=listEtiq[2]
 
-        const subEtia02=listEtiq[2]
+          if(subEtia02 === 'bigletter'){
+            //model = whatsappMessage.whatsAppMessageBuilder.typeDocument(number,'https://www.laglorietarestaurant.com/uploads/carta/cartagrande.pdf','Menu del Dia')
+            //model = whatsappMessage.whatsAppMessageBuilder.typeDocument(number,'https://www.laglorietarestaurant.com/uploads/carta/cartachica.pdf','Menu del Completo')
+            message = "A continuación, se muestran los platos disponibles:"
+            for (let i in dataOrders) {
+              message += "\nNombre: " + dataOrders[i].name + " Cantidad: " + dataOrders[i].quantity + " Precio: " + dataOrders[i].price;
+            }
 
-        if(subEtia02 === 'bigletter'){
-          //model = whatsappMessage.whatsAppMessageBuilder.typeDocument(number,'https://www.laglorietarestaurant.com/uploads/carta/cartagrande.pdf','Menu del Dia')
-          //model = whatsappMessage.whatsAppMessageBuilder.typeDocument(number,'https://www.laglorietarestaurant.com/uploads/carta/cartachica.pdf','Menu del Completo')
-          message = "Mostrar Menus"
-        }
-        else{
-          //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
-          message = "No entendi"
-        }
-      }
-
-      else if (subEtia01 === 'order') {
-        const subEtia02=listEtiq[2]
-        if(subEtia02 === 'requests'){
-
-          const subEtia03=listEtiq[3]
-
-          if(subEtia03 === 'consult'){
-            // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'Su pedido sera atendido en unos minutos')
-            message = "Que desea ordenar , indique la cantidad y el plato porfavor"
-            order.createOrder({conversation_id:conversation["conversation_id"],customer_id:customer["customer_id"],total_amount:0})
           }
           else{
             //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
-            message = "No entiendo"
+            message = "No entiendo la operacion"
           }
         }
-        else if(subEtia02 === 'payments'){
-          const subEtia03=listEtiq[3]
-
-          if(subEtia03 === 'typemethod'){
-            // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'En seguida le mostraremos los metodos de pago disponible')
-            message = "Los metodos de pagos se listaran"
+        else if (subEtia01 === 'order') {
+          const conversationAdd=await addConversation(conversation,msg,resultado,customerSign["customer_id"])
+          const subEtia02=listEtiq[2]
+          if(subEtia02 === 'requests'){
+            const subEtia03=listEtiq[3]
+            if(subEtia03 === 'consult'){
+              // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'Su pedido sera atendido en unos minutos')
+              message = "Por favor, indique qué desea ordenar, especificando la cantidad y el nombre del plato, por favor."
+              order.createOrder({conversation_id:conversationAdd["conversation_id"],customer_id:customerSign["customer_id"],total_amount:0})
+            }
           }
-          else if(subEtia03 === 'confirmationtypemethod'){
-
-            const subEtia04=listEtiq[4]
-
-            message = "Enseguida confirmaremos si se puede pagar con "
-            if(subEtia04 === 'order.creditcard'){
-              // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'En seguida le mostraremos los metodos de pago disponible')
-              message = message +"tarjeta de credito"
-            }
-            else if(subEtia04 === 'order.cash'){
-              //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
-              message = message +"dinero en efectivo"
-            }
-            else if(subEtia04 === 'order.plin'){
-              //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
-              message = message +"plin"
-            }
-            else if(subEtia04 === 'order.bank'){
-              //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
-              message = message +"pagofacil"
-            }
-            else if(subEtia04 === 'order.pagofacil'){
-              //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
-              message = message +"pagofacil"
-            }
-            else if(subEtia04 === 'order.pagoefectivo'){
-              //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
-              message = message +"pagoefectivo"
-            }
+          else{
+            //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
+            message = "Disculpa, pero no entiendo la operación que estás describiendo, ya que no mencionaste el inicio de una orden. ¿Podrías proporcionar más detalles o aclarar lo que deseas realizar? Estoy aquí para ayudarte."
           }
         }
-      }
-    }
-
-    else if(orderDt){
-      const subEtia02=listEtiq[2]
-      if(subEtia02 === 'confirmations'){
-
-        const subEtia03=listEtiq[3]
-
-        if(subEtia03 === 'confirmation'){
-          // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'Pedido confirmado , gracias por su confianza')
-
-          try{
-            let ordersResult = await order.updateOrderStatusById(orderDt["order_id"],"A")
-            if(ordersResult !== undefined){
-              message = "Pedido confirmado"
+        else{
+          //model = whatsappMessage.MessageType.typeText(number, 'No entiendo')
+          message = "Disculpa operacion desconocida"
+        }
+      } else {
+          const subEtia02=listEtiq[2]
+          if (orderCustomer.product_status === "A" && orderCustomer.payment_status === "A" && orderCustomer.delivery_status === "A"){
+            const ordersResult = await order.updateOrderStatusById(orderCustomer["order_id"], "A");
+            if(ordersResult!==undefined){
+              message = "¡Excelentes noticias! Su pedido ya está en camino hacia usted."
             }
             else{
-              messa = "Hubo un error al confirmar el pedido"
+              message = "Lamentamos informarle que su pedido no pudo ser procesado y ha sido rechazado."
             }
-          } catch (error) {
-            message = "Error al agregar la orden: " + error
           }
-        }
-        else if(subEtia03 === 'paymethod'){
-          // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'Pedido confirmado , gracias por su confianza')
-          message = "El pedido fue confirmado y se mostrar los metodos de pago"
-        }
-      }
-      else if(subEtia02 === 'cancelations'){
+          else if (orderCustomer.product_status === "P") {
+            let ordersJson = await whatsappServices.api.sendRequestDish(msg)
 
-        const subEtia03=listEtiq[3]
+            if(ordersJson !== null) {
+              let ordersJson = await whatsappServices.api.sendRequestDish(msg)
+              let ordersResult = await order.getListProducts(orderCustomer["order_id"])
 
-        if(subEtia03 === 'cancelation'){
-          // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'Pedido cancelado')
-          try{
-            let ordersResult = await order.updateOrderStatusById(orderDt["order_id"],"R")
-            if(ordersResult !== undefined){
-              message = "Pedido cancelado"
-            }
-            else{
-              messa = "Hubo un error al cancelar el pedido"
-            }
-          } catch (error) {
-            message = "Error al agregar la orden: " + error
-          }
-        }
-        else if(subEtia03 === 'cancelationother'){
-          // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'Pedido confirmado , gracias por su confianza')
-          message = "El pedido fue cancelado"
-        }
-      }
-      else{
-        let ordersJson = await whatsappServices.api.sendRequestDish(msg)
-        let ordersResult = await order.getListProducts(orderDt["order_id"])
+              for (let item of ordersJson) {
+                try {
+                  //Simulacion de BD
+                  const productExistsDt = dataOrders.find((product) => product.name === item.NAME);
 
-        for (let item of ordersJson) {
-          try {
-            const productExistsDt = dataOrders.find((product) => product.name === item.NAME);
+                  if (item.QUANTITY > productExistsDt["quantity"]) {
+                    message = "Ingrese una cantidad menor a "+productExistsDt["quantity"]
+                  }else if(productExistsDt["quantity"] > 0){
 
-            if (item.QUANTITY > productExistsDt["quantity"]) {
-              message = "Ingrese una cantidad menor a "+productExistsDt["quantity"]
-            }else if(productExistsDt["quantity"] > 0){
-              //Simulacion de BD
-              let existingProduct = ordersResult.find((product) => product.name === item.NAME)
-              const priceProduct = productExistsDt["price"]
+                    let existingProduct = ordersResult.find((product) => product.name === item.NAME)
+                    const priceProduct = productExistsDt["price"]
 
-              if(existingProduct){
+                    if(existingProduct){
 
-                const updatedQuantity = (existingProduct["quantity"] + item.QUANTITY) > productExistsDt["quantity"]? productExistsDt["quantity"]: (existingProduct["quantity"] + item.QUANTITY);
-                existingProduct["quantity"] = updatedQuantity
-                let result = await order.updateListProducts(orderDt["order_id"],existingProduct)
-                if (result == null) {
-                  message = "Hubo un error al agregar el producto"
-                } else {
-                  message = "Producto actualizado correctamente"
-                }
-
-              }
-              else {
-                const updatedQuantity = item.QUANTITY > productExistsDt["quantity"]? productExistsDt["quantity"] : item.QUANTITY
-
-                let result = await order.addListProducts(orderDt["order_id"],item.NAME, updatedQuantity, priceProduct)
-                if (result == null) {
-                  message = "Hubo un error al agregar el producto"
-                } else {
-                  message = "Producto añadido con éxito."
+                      const updatedQuantity = (existingProduct["quantity"] + item.QUANTITY) > productExistsDt["quantity"]? productExistsDt["quantity"]: (existingProduct["quantity"] + item.QUANTITY);
+                      existingProduct["quantity"] = updatedQuantity
+                      let result = await order.updateListProducts(orderCustomer["order_id"],existingProduct)
+                      if (result == null) {
+                        message = "Hubo un error al agregar el producto : \n Orden : "+item.NAME+"\n Cantidad : "+updatedQuantity+"\n Precio : "+priceProduct
+                      } else {
+                        message = "Producto actualizado con correctamente : \n Orden : "+item.NAME+"\n Cantidad : "+updatedQuantity+"\n Precio : "+priceProduct
+                      }
+                    }
+                    else {
+                      const updatedQuantity = item.QUANTITY > productExistsDt["quantity"]? productExistsDt["quantity"] : item.QUANTITY
+                      let result = await order.addListProducts(orderCustomer["order_id"],item.NAME, updatedQuantity, priceProduct)
+                      if (result == null) {
+                        message = "Hubo un error al agregar el producto : \n Orden : "+item.NAME+"\n Cantidad : "+updatedQuantity+"\n Precio : "+priceProduct
+                      } else {
+                        message = "Producto añadido con éxito : \n Orden : "+item.NAME+"\n Cantidad : "+updatedQuantity+"\n Precio : "+priceProduct
+                      }
+                    }
+                    message = message + "\n¿Le gustaría incorporar al pedido algo mas o prefiere confirmar la adquisición de este  o cancelar la adquisición?"
+                  }
+                  else {
+                    message = "Lamentamos pero ya no se encuentra disponible , desea pedir algo mas"
+                  }
+                } catch (error) {
+                  message = "Tenemos poblemas al agregar el producto "+error
                 }
               }
-              message += message + "¿Le gustaría incorporar al pedido algo mas o prefiere confirmar la adquisición de este pedido o cancelar la adquisición de este pedido?"
+              await addConversation(conversation,msg,resultado,customerSign["customer_id"])
+            } else {
+                if(subEtia02 === 'confirmations') {
+                  const subEtia03 = listEtiq[3];
+                  try {
+                      let ordersResult = await order.updateOrderProductStatusById(orderCustomer["order_id"], "A");
+                      if (ordersResult !== undefined) {
+                          if (subEtia03 === 'confirmation') {
+                              message = "!Confirmacion de pedidos! Tu pedido ha sido confirmado \nPor favor, seleccione el método de pago o consulte los métodos de pago disponibles"
+                          }else if (subEtia03 === 'paymethod') {
+                              message ="¡Confirmación de Pedido! Su pedido ha sido confirmado. En breve, le presentaremos los métodos de pago disponibles.";
+                              message =message + "\nLos metodos de pagos disponibles son : \n- Yape \n- Fisico";
+                          }else {
+                              message = "Operación desconocida";
+                          }
+                      } else {
+                          message = "Hubo un error al confirmar el pedido";
+                      }
+                  } catch (error) {
+                      message = "Error al confirmar a la orden";
+                  }
+                  await addConversation(conversation,msg,resultado,customerSign["customer_id"])
+                } else if(subEtia02 === 'cancelations') {
+                  // model = whatsappMessage.whatsAppMessageBuilder.typeText(number, 'Pedido cancelado')
+                  const subEtia03 = listEtiq[3];
+                  try {
+                      let ordersResult = await order.updateOrderStatusById(orderCustomer["order_id"], "R");
+                      if (ordersResult !== undefined) {
+                          if (subEtia03 === 'cancelation') {
+                              message = "!Cancelacion de pedidos! Tu pedido ha sido cancelado";
+                          } else if (subEtia03 === 'cancelationother') {
+                              message = "¡Cancelación de pedidos! Tu pedido ha sido cancelado. Por favor, mantente atento/a, en breve recibirás una respuesta por parte de nuestro personal de ayuda.";
+                          } else {
+                              message = "Operación desconocida";
+                          }
+                      } else {
+                          message = "Hubo un error al cancelar el pedido";
+                      }
+                  } catch (error) {
+                      message = "Error al cancelar a la orden";
+                  }
+                  await addConversation(conversation,msg,resultado,customerSign["customer_id"])
+                }
+                else {
+                  message = "Accion desconocida"
+                }
             }
-            else {
-              message = "Lamentamos pero ya no se encuentra disponible , desea pedir algo mas"
+          } else if (orderCustomer.payment_status === "P") {
+            if(subEtia02 === 'payments') {
+              const subEtia03 = listEtiq[3];
+              try {
+                if (subEtia03 === 'confirmationtypemethod') {
+                  const metodoPago = listEtiq[4].split(".")[1]
+                  try {
+
+                    const paymentResult = await payment.getPaymentsByName(metodoPago);
+                    console.log(metodoPago)
+                    console.log(paymentResult)
+                    if (paymentResult === null) {
+                        message = "Ingrese otro metodo de pago porfavor";
+                        message +="\nMetodos de pago disponible: "
+                        const paymentResults = await payment.getAllPayments()
+
+                        let countI = 0
+                        paymentResults.forEach(payment => {
+                          countI += 1
+                          message +="\n"+countI+".-"+payment.payment_method
+                        });
+                    }
+                    else{
+                      const orderUpdatePayment = await order.updateOrderPaymentID(orderCustomer.order_id,paymentResult.payment_id);
+
+                      if (!orderUpdatePayment) {
+                          message = "No se pudo actualizar el estado de pago del pedido";
+                          throw new Error(message);
+                      }
+
+                      message = "Método de pago acceptado";
+                      message += "\n Por favor, introduzca su dirección:";
+                    }
+                } catch (error) {
+                    message = `Tuvimos un problema al crear el método de pago`+error;
+                }
+
+                }else {
+                    message = "Los metodos de pagos disponibles son : \n- Yape \n- Fisico";
+                }
+              } catch (error) {
+                  message = "Error al confirmar el metodo de pago";
+              }
+              await addConversation(conversation,msg,resultado,customerSign["customer_id"])
+            }else {
+              message = "Accion desconocida"
             }
-          } catch (error) {
-            message = "Error al agregar la orden"+error
+          } else if (orderCustomer.delivery_status === "P") {
+              // aquí...
           }
-        }
+          else{
+            message = "Acción desconocida, continúa agregando más platos."
+          }
       }
-
-      return message
-    }
-
-    else if(customer["status"] === "B"){
-      message = "Usted esta bloqueado"
-      return message
-    }
-
-    else if(customer["status"] === "I"){
-      return "Inactivo"
+    } else if (customerSign["status"] === "I" || customerSign["status"] === "B") {
+        message = "Espere un momento"
+    } else {
+        message = "Disculpa operacion desconocida"
     }
 
     //whatsappServices.sendMessageText(model)
@@ -245,11 +263,7 @@ async function process(msg, number) {
   }
 }
 
-async function signCustomer(number){
-  let customer = null
-
-  let model = new whatsappServices.customer.customerService
-
+async function signCustomer(model,number){
   try{
     customer = await model.getCustomerByNumber(number)
     if(customer === null){
@@ -259,6 +273,19 @@ async function signCustomer(number){
     return customer
   }catch (error) {
     console.log("Error create User")
+    throw error
+  }
+}
+
+async function addConversation(model,message,label,customerID){
+  try{
+    return await model.createConversation({
+      customer_id: customerID,
+      messages: message,
+      label : label
+    })
+  }catch (error) {
+    console.log("Error add conversation")
     throw error
   }
 }

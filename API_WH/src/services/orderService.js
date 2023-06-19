@@ -4,6 +4,19 @@ const Order = require('../schemas/schemas').Order;
  * @author STEVE
 */
 class orderService{
+
+    async updateOrderTotal(orderId) {
+        try {
+            const updatedOrder = await Order.findOne({ order_id: orderId });
+            const totalPrice = updatedOrder.products.reduce((acc, product) => {
+                return acc + product.price * product.quantity
+            }, 0);
+            updatedOrder.total_amount = totalPrice
+            await updatedOrder.save()
+        } catch (error) {
+            throw error
+        }
+    }
     /**
      * @author STEVE
      * @function createOrder
@@ -21,7 +34,28 @@ class orderService{
             throw new Error(error);
         }
     }
-
+    /**
+     * @author STEVE
+     * @function updateOrderPaymentID
+     * @description Actualiza el id de payment de la orden de compra
+     * @param {string} orderId - ID de la orden que se desea actualizar
+     * @param {string} paymentId - ID del pago que se desea actualizar
+     * @returns {Promise<Object>} - El objeto de tipo Order actualizado
+     * @throws {Error} - Si ocurre algún error al buscar o actualizar la orden de compra
+    */
+    async updateOrderPaymentID(orderId, paymentId) {
+        try {
+            const order = await Order.findOneAndUpdate(
+                { order_id: orderId },
+                { payment_id: paymentId },
+                { new: true }
+            );
+            await this.updateOrderPaymentStatusById(orderId, "A")
+            return order;
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
     /**
      * @author STEVE
      * @function getAllOrders
@@ -69,6 +103,27 @@ class orderService{
             const order = await Order.findOneAndUpdate(
                 { order_id: orderId },
                 { status: newStatus },
+                { new: true }
+            );
+            return order;
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+    /**
+     * @author STEVE
+     * @function updateOrderProductStatusById
+     * @description Actualiza el estado de el estado de productos de una orden específica
+     * @param {string} orderId - ID de la orden que se desea actualizar
+     * @param {string} newStatus - El nuevo estado de entrega que se desea asignar
+     * @returns {Promise<Object>} - El objeto de tipo Order actualizado
+     * @throws {Error} - Si ocurre algún error al buscar o actualizar la orden de compra
+    */
+    async updateOrderProductStatusById(orderId, newStatus) {
+        try {
+            const order = await Order.findOneAndUpdate(
+                { order_id: orderId },
+                { product_status: newStatus },
                 { new: true }
             );
             return order;
@@ -146,7 +201,10 @@ class orderService{
                 { order_id: orderId },
                 { $push: { products: product } }
             );
-            return result;
+
+            await this.updateOrderTotal(orderId)
+
+            return result
         } catch (error) {
             throw error;
         }
@@ -168,8 +226,11 @@ class orderService{
                 "products._id": updateData._id
             },
             { $set: { "products.$.quantity": updateData.quantity } }
-            );
-            return result;
+            )
+
+            await this.updateOrderTotal(orderId)
+
+            return result
         } catch (error) {
             throw error;
         }
@@ -194,6 +255,33 @@ class orderService{
             return result;
         } catch (error) {
             throw error;
+        }
+    }
+     /**
+     * @author ALEXIZ
+     * @description Obtiene el total de pagos realizados por un cliente con el ID proporcionado
+     * @function getTotalsByCustomer
+     * @param {string} customerId - ID del cliente que realizó los pagos
+     * @returns {Promise<number>} - Total de pagos realizados por el cliente
+     */
+     async getTotalsByCustomer(customerId){
+        try {
+            const totalPayments = await Order.aggregate([
+                {
+                    $match: {
+                        customer_id: mongoose.Types.ObjectId(customerId)
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$customer_id",
+                        total: { $sum: "$amount" }
+                    }
+                }
+            ]);
+            return totalPayments[0].total || 0;
+        } catch (error) {
+            throw new Error(error);
         }
     }
 }

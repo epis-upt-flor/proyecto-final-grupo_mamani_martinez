@@ -15,15 +15,6 @@ const customerSchema = new Schema({
     customer_id: { type: String, default: uuidv4 },
     phone_number: {type: String,required:true},
     status: { type: String, default: "A", enum: ['A', 'I', 'B']},
-    payment_history: [
-        {
-            payment_id: { type: String, ref: "Payment" },
-            payment_method: String,
-            amount: Number,
-            status: String,
-            timestamp: Date
-        }
-    ],
     return_history: [
         {
             return_id: { type: String, ref: "Return" },
@@ -57,6 +48,7 @@ const customerSchema = new Schema({
 const orderSchema = new Schema({
     order_id: { type: String, default: uuidv4 },
     customer_id: { type: String, ref: "Customer" },
+    payment_id: { type: String, ref: "Payment" },
     products: [
         {
             //product_id: { type: Schema.Types.ObjectId, ref: "Product" },
@@ -80,14 +72,15 @@ const orderSchema = new Schema({
         min: [0, 'Total amount cannot be less than 0.']
     },
     status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
+    product_status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
     payment_status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
     delivery_address: {type: String},
-    delivery_status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
+    delivery_status: { type: String, default: "A", enum: ['P', 'A', 'R'] },
     timestamp: { type: Date, default: Date.now }
 });
 
 const productSchema = new Schema({
-    payment_id: { type: String, default: uuidv4 },
+    product_id: { type: String, default: uuidv4 },
     order_id: { type: String, ref: "Order" },
     name: {type: String,required:true},
     category: {type: String,required:true},
@@ -107,16 +100,9 @@ const productSchema = new Schema({
 
 const paymentSchema = new Schema({
     payment_id: { type: String, default: uuidv4 },
-    order_id: { type: String, ref: "Order" },
-    customer_id: { type: String, ref: "Customer" },
-    amount: {
-        type: Number,
-        required: true,
-        min: [0, 'Total amount cannot be less than 0.']
-    },
     payment_method: {type: String,required:true},
     timestamp: { type: Date, default: Date.now },
-    status: { type: String, default: "P", enum: ['P', 'A', 'R'] },
+    status: { type: String, default: "A", enum: ['P', 'A', 'R'] },
 });
 
 const deliverySchema = new Schema({

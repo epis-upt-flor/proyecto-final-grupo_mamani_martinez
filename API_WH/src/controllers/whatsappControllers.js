@@ -68,10 +68,9 @@ const receivedMessage = async(req, res) => {
 
       if (textMessage != null && fromNumber != null) {
 
+        try {
           const result = await processMessage.process(textMessage, fromNumber);
           res.send("EVENT_RECEIVED:" + result);
-        try {
-          // Aquí
         } catch (err) {
           console.error(err);
         }
